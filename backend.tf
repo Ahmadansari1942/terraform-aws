@@ -4,3 +4,4 @@ terraform {
     key    = "vpc-project/terraform.tfstate"
     region = "eu-north-1"   # 👈 
 }
+}
