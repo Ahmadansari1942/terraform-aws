@@ -1,13 +1,14 @@
-name: Terraform AWS
+name: Terraform Control
 
 on:
   push:
     branches:
       - main
+
   workflow_dispatch:
     inputs:
       action:
-        description: "Choose action"
+        description: "Select Terraform Action"
         required: true
         default: "apply"
         type: choice
@@ -36,14 +37,17 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      # 👉 PLAN (only for apply)
       - name: Terraform Plan
-        if: github.event.inputs.action != 'destroy'
+        if: ${{ github.event_name == 'push' || github.event.inputs.action == 'apply' }}
         run: terraform plan
 
+      # 👉 APPLY (auto on push OR manual apply)
       - name: Terraform Apply
-        if: github.event.inputs.action != 'destroy'
+        if: ${{ github.event_name == 'push' || github.event.inputs.action == 'apply' }}
         run: terraform apply -auto-approve
 
+      # 👉 DESTROY (ONLY manual)
       - name: Terraform Destroy
-        if: github.event.inputs.action == 'destroy'
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy' }}
         run: terraform destroy -auto-approve
